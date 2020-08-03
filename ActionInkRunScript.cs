@@ -22,7 +22,7 @@ namespace AC
         protected AudioClip currentSpeechClip;
         protected string currentLine = string.Empty;
         public Conversation conversation;
-        public bool autoSelectLoneOption;
+	public bool autoSelectLoneOption;
         protected int choiceID = -1;
         protected int tagIndex = -1;
         protected bool evaluatingTags = false;
@@ -224,16 +224,18 @@ namespace AC
 
                     if (conversation != null)
                     {
-                        if (!conversation.IsActive(false) && choiceID >= 0)
+			// Conversation.IsActive deprecated in 1.71 of AdventureCreator.
+			// TODO: Ignoring it for now
+                        // if (!conversation.IsActive(false) && choiceID >= 0)
+			if (choiceID >= 0)
                         {
                             ACInkIntegration.inkStory.ChooseChoiceIndex(choiceID);
                             choiceID = -1;
                             tagIndex = -1;
                             return defaultPauseTime;
                         }
-
-                        if (ACInkIntegration.inkStory.currentChoices.Count > 0 && !conversation.IsActive(false))
-                        {
+			else if (ACInkIntegration.inkStory.currentChoices.Count > 0)
+			{
                             GetChoices();
                             if(conversation.options.Count == 1 && autoSelectLoneOption)
                             {
@@ -245,10 +247,6 @@ namespace AC
                             }
                         }
 
-                        if (conversation != null && conversation.IsActive(false))
-                        {
-                            return defaultPauseTime;
-                        }
                     }
                     isRunning = false;
                     EventManager.OnClickConversation -= GetChoiceID;
@@ -315,7 +313,7 @@ namespace AC
             newStory = EditorGUILayout.Toggle("New Story?", newStory);
             knot = EditorGUILayout.TextField("Knot/Stitch:", knot);
             conversation = (Conversation)EditorGUILayout.ObjectField(new GUIContent("Conversation:"), conversation, typeof(Conversation), true);
-            autoSelectLoneOption = EditorGUILayout.Toggle("Auto-select lone option?", autoSelectLoneOption);
+	    autoSelectLoneOption = EditorGUILayout.Toggle("Auto-select lone option?", autoSelectLoneOption);
             numberOfActors = EditorGUILayout.DelayedIntField(new GUIContent("Number of speakers:"), numberOfActors);
 
             if (actors != null)
@@ -990,19 +988,19 @@ namespace AC
                             switch (v.type)
                             {
                                 case VariableType.Boolean:
-                                    v.val = SetBoolean(value);
+                                    v.BooleanValue = SetBoolean(value);
                                     break;
 
                                 case VariableType.Integer:
-                                    v.val = SetInt(value);
+                                    v.IntegerValue = SetInt(value);
                                     break;
 
                                 case VariableType.Float:
-                                    v.floatVal = SetFloat(value);
+                                    v.FloatValue = SetFloat(value);
                                     break;
 
                                 case VariableType.String:
-                                    v.textVal = value;
+                                    v.TextValue = value;
                                     break;
                             }
                             return;
@@ -1097,19 +1095,13 @@ namespace AC
         protected void ToScene(string text)
         {
             KickStarter.sceneChanger.PrepareSceneForExit();
-            KickStarter.sceneChanger.ChangeScene(new SceneInfo(text.Trim()), true );
+	    // As of Adventure Creator 1.71, ChangeScene requires a scene index, not a scene name
+            KickStarter.sceneChanger.ChangeScene(KickStarter.sceneChanger.NameToIndex(text.Trim()), true );
         }
 
-        protected int SetBoolean(string str)
+        protected bool SetBoolean(string str)
         {
-            if (str == "true")
-            {
-                return 1;
-            }
-            else
-            {
-                return 0;
-            }
+            return str == "true";
         }
 
         protected int SetInt(string str)

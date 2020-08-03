@@ -52,20 +52,20 @@ public class ACInkIntegration : MonoBehaviour
     {
         inkStory.BindExternalFunction("getValue", (int a) =>
         {
-            GVar var = GlobalVariables.GetVariable(a);
+            GVar globalVar = GlobalVariables.GetVariable(a);
 
-            if (var == null) return "no var";
+            if (globalVar == null) return "no var";
 
-            switch (var.type)
+            switch (globalVar.type)
             {
                 case VariableType.Boolean:
-                    return var.BooleanValue;
+                    return globalVar.BooleanValue;
                 case VariableType.Integer:
-                    return var.IntegerValue;
+                    return globalVar.IntegerValue;
                 case VariableType.String:
-                    return var.textVal;
+                    return globalVar.TextValue;
                 case VariableType.Float:
-                    return var.floatVal;
+                    return globalVar.FloatValue;
             }
             return "no var";
         });
@@ -83,9 +83,9 @@ public class ACInkIntegration : MonoBehaviour
                 case VariableType.Integer:
                     return var.IntegerValue;
                 case VariableType.String:
-                    return var.textVal;
+                    return var.TextValue;
                 case VariableType.Float:
-                    return var.floatVal;
+                    return var.FloatValue;
             }
             return "no var";
         });
